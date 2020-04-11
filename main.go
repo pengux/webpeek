@@ -53,7 +53,8 @@ func run(c *cli.Context) error {
 
 	uiTextView := tview.NewTextView()
 	uiTextView.
-		SetWordWrap(true).
+		SetDynamicColors(true).
+		SetWrap(false).
 		SetBorder(false)
 
 	// Returns a new primitive which puts the provided primitive in the center and
@@ -97,9 +98,10 @@ func run(c *cli.Context) error {
 
 	showPeek := func(p *peekedContent) {
 		content := []string{p.url.String()}
-		// if p.metaDesc != "" {
-		// 	content = append(content, p.metaDesc)
-		// }
+
+		if p.err != nil {
+			content = append(content, "[red]"+p.err.Error()+"[white]")
+		}
 		content = append(content, p.h1s...)
 		content = append(content, p.markdown)
 

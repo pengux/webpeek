@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	md "github.com/JohannesKaufmann/html-to-markdown"
@@ -18,13 +20,11 @@ const (
 
 type (
 	peekedContent struct {
-		url   *url.URL
-		title string
-		// metaDesc string
+		url      *url.URL
+		title    string
 		h1s      []string
 		markdown string
-		// bodyPreview string
-		err error
+		err      error
 	}
 
 	peeks struct {
@@ -61,6 +61,15 @@ func peek(url *url.URL) *peekedContent {
 		return p
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		p.err = fmt.Errorf("Not OK! Status Code %d", resp.StatusCode)
+		return p
+	}
+
+	if !strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "text/html") {
+		p.err = fmt.Errorf("Content type of page is not HTML: %s", resp.Header.Get("Content-Type"))
+	}
+
 	htmlDoc, err := html.Parse(resp.Body)
 	cErr := resp.Body.Close()
 	if err != nil {
@@ -77,15 +86,6 @@ func peek(url *url.URL) *peekedContent {
 		p.title = extractTextContent(v)
 	}
 
-	// // Parse meta description
-	// if v := metaDescSelector.MatchFirst(htmlDoc); v != nil {
-	// 	for _, attr := range v.Attr {
-	// 		if attr.Key == "content" {
-	// 			p.metaDesc = attr.Val
-	// 		}
-	// 	}
-	// }
-	//
 	// Parse h1 tags
 	h1s := h1Selector.MatchAll(htmlDoc)
 	for _, h1 := range h1s {
