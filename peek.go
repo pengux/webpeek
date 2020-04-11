@@ -3,16 +3,26 @@ package main
 import (
 	"net/http"
 	"net/url"
+	"time"
 
+	md "github.com/JohannesKaufmann/html-to-markdown"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
+)
+
+const (
+	userAgent         = "webpeek/1.0"
+	defaultReqTimeout = 10 * time.Second
 )
 
 type (
 	peekedContent struct {
-		url      *url.URL
-		title    string
-		metaDesc string
+		url   *url.URL
+		title string
+		// metaDesc string
 		h1s      []string
+		markdown string
 		// bodyPreview string
 		err error
 	}
@@ -24,6 +34,10 @@ type (
 )
 
 var (
+	titleSelector = cascadia.MustCompile("head > title")
+	// metaDescSelector = cascadia.MustCompile(`head > meta[name="description"]`)
+	h1Selector = cascadia.MustCompile("h1")
+
 	c = http.Client{
 		Timeout: defaultReqTimeout,
 	}
@@ -60,23 +74,28 @@ func peek(url *url.URL) *peekedContent {
 
 	// Parse title
 	if v := titleSelector.MatchFirst(htmlDoc); v != nil {
-		p.title = v.FirstChild.Data
+		p.title = extractTextContent(v)
 	}
 
-	// Parse meta description
-	if v := metaDescSelector.MatchFirst(htmlDoc); v != nil {
-		for _, attr := range v.Attr {
-			if attr.Key == "content" {
-				p.metaDesc = attr.Val
-			}
-		}
-	}
-
+	// // Parse meta description
+	// if v := metaDescSelector.MatchFirst(htmlDoc); v != nil {
+	// 	for _, attr := range v.Attr {
+	// 		if attr.Key == "content" {
+	// 			p.metaDesc = attr.Val
+	// 		}
+	// 	}
+	// }
+	//
 	// Parse h1 tags
 	h1s := h1Selector.MatchAll(htmlDoc)
 	for _, h1 := range h1s {
 		p.h1s = append(p.h1s, extractTextContent(h1))
 	}
+
+	// Parse whole document to markdown
+	converter := md.NewConverter("", true, nil)
+	sel := goquery.NewDocumentFromNode(htmlDoc).Find("body")
+	p.markdown = converter.Convert(sel)
 
 	return p
 }

@@ -8,23 +8,10 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/andybalholm/cascadia"
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
 	"github.com/urfave/cli/v2"
-)
-
-const (
-	userAgent         = "webpeek/1.0"
-	defaultReqTimeout = 10 * time.Second
-)
-
-var (
-	titleSelector    = cascadia.MustCompile("head > title")
-	metaDescSelector = cascadia.MustCompile(`head > meta[name="description"]`)
-	h1Selector       = cascadia.MustCompile("h1")
 )
 
 func main() {
@@ -100,7 +87,6 @@ func run(c *cli.Context) error {
 		height = 20
 	}
 
-	log.Println("width, height", screenWidth, screenHeight, width, height)
 	pages := tview.NewPages().
 		AddPage("modal", modal(uiTextView, width, height), true, true)
 	uiApp := tview.NewApplication().SetRoot(pages, true).
@@ -109,13 +95,15 @@ func run(c *cli.Context) error {
 
 	showPeek := func(p *peekedContent) {
 		content := []string{p.url.String()}
-		if p.metaDesc != "" {
-			content = append(content, p.metaDesc)
-		}
+		// if p.metaDesc != "" {
+		// 	content = append(content, p.metaDesc)
+		// }
 		content = append(content, p.h1s...)
+		content = append(content, p.markdown)
 
 		// uiTextView.SetTitle(p.title)
-		uiTextView.SetText(strings.Join(content, "\n"))
+		uiTextView.SetText(strings.Join(content, "\n\n")).
+			ScrollToBeginning()
 	}
 
 	uiTextView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -132,7 +120,9 @@ func run(c *cli.Context) error {
 			return event
 		case 'r':
 			peeks.Value().Reload()
-		default:
+		case 'h':
+			fallthrough
+		case ' ':
 			if !peeks.Next() {
 				uiApp.Stop()
 				return event
