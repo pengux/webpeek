@@ -52,7 +52,9 @@ func run(c *cli.Context) error {
 	var out []string
 
 	uiTextView := tview.NewTextView()
-	uiTextView.SetBorder(true)
+	uiTextView.
+		SetWordWrap(true).
+		SetBorder(false)
 
 	// Returns a new primitive which puts the provided primitive in the center and
 	// sets its size to the given width and height.
