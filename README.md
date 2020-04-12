@@ -8,6 +8,17 @@ A CLI tool which accepts a list of URLs and peek at their content. The content c
 I subscribe to a couple of RSS feeds (e.g. Hacker News) which contains links to websites and need a quick way to determine of the link has something that should interest me. Previously, I would just open all links in a web browser but this seems to be too wasteful, both in time and computing resources so that's why this tool exists.
 
 
+## Installation
+
+If your `GOPATH` is set then use `go install`
+```
+go install github.com/pengux/webpeek
+ls $GOPATH/bin/webpeek
+```
+
+Or just clone and build it yourself
+
+
 ## Usage
 
 ```
