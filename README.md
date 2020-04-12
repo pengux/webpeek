@@ -22,8 +22,9 @@ cat urls.txt | webpeek | xargs firefox -new-tab
 
 ## Keybindings
 
- Keys | Feature         |
-------|-----------------|
- `l`  | Keep the URL    |
- `q`  | Quit            |
- `r`  | Reload the peek |
+ Keys    | Feature                      |
+---------|------------------------------|
+ `l`     | Keep the URL                 |
+ `q`     | Quit                         |
+ `r`     | Reload the peek              |
+ `Space` | Next without keeping the URL |

@@ -67,7 +67,7 @@ func draw(peeks peeks) error {
 
 		// uiTextView.SetTitle(p.title)
 		uiTextView.SetText(strings.Join(content, "\n\n")).
-			ScrollToBeginning()
+			ScrollTo(0, 0)
 	}
 
 	uiTextView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -84,8 +84,6 @@ func draw(peeks peeks) error {
 			return event
 		case 'r':
 			peeks.Value().Reload()
-		case 'h':
-			fallthrough
 		case ' ':
 			if !peeks.Next() {
 				uiApp.Stop()
