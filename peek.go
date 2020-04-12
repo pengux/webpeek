@@ -68,6 +68,7 @@ func peek(url *url.URL) *peekedContent {
 
 	if !strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "text/html") {
 		p.err = fmt.Errorf("Content type of page is not HTML: %s", resp.Header.Get("Content-Type"))
+		return p
 	}
 
 	htmlDoc, err := html.Parse(resp.Body)
