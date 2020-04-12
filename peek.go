@@ -120,6 +120,10 @@ func (p *peeks) Next() bool {
 }
 
 func (p *peeks) Value() *peekedContent {
+	if p.curVal >= len(p.a) {
+		return p.a[len(p.a)-1]
+	}
+
 	return p.a[p.curVal]
 }
 
