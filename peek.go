@@ -28,8 +28,8 @@ type (
 	}
 
 	peeks struct {
-		a      []*peekedContent
-		curVal int
+		a        []*peekedContent
+		curIndex int
 	}
 )
 
@@ -114,20 +114,41 @@ func extractTextContent(n *html.Node) string {
 }
 
 func (p *peeks) Next() bool {
-	p.curVal++
+	p.curIndex++
 
-	return p.curVal < len(p.a)
+	return p.curIndex < len(p.a)
 }
 
 func (p *peeks) Value() *peekedContent {
-	if p.curVal >= len(p.a) {
+	if p.curIndex >= len(p.a) {
 		return p.a[len(p.a)-1]
 	}
 
-	return p.a[p.curVal]
+	return p.a[p.curIndex]
+}
+
+func (p *peeks) Len() int {
+	return len(p.a)
+}
+
+// Index returns the current index
+func (p *peeks) Index() int {
+	return p.curIndex
 }
 
 func (p *peekedContent) Reload() {
 	newP := peek(p.url)
 	*p = *newP
+}
+
+func (p *peekedContent) String() string {
+	content := []string{p.url.String()}
+
+	if p.err != nil {
+		content = append(content, "[red]"+p.err.Error()+"[white]")
+	}
+	content = append(content, p.h1s...)
+	content = append(content, p.markdown)
+
+	return strings.Join(content, "\n\n")
 }

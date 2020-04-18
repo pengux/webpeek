@@ -9,8 +9,6 @@ import (
 )
 
 func draw(peeks peeks) error {
-	var out []string
-
 	uiTextView := tview.NewTextView()
 	uiTextView.
 		SetDynamicColors(true).
@@ -56,17 +54,11 @@ func draw(peeks peeks) error {
 		SetScreen(screen).
 		SetFocus(uiTextView)
 
+	var out []string
+
 	showPeek := func(p *peekedContent) {
-		content := []string{p.url.String()}
-
-		if p.err != nil {
-			content = append(content, "[red]"+p.err.Error()+"[white]")
-		}
-		content = append(content, p.h1s...)
-		content = append(content, p.markdown)
-
-		// uiTextView.SetTitle(p.title)
-		uiTextView.SetText(strings.Join(content, "\n\n")).
+		content := peeks.Value().String()
+		uiTextView.SetText(fmt.Sprintf("%d/%d\n%s", peeks.Index()+1, peeks.Len(), content)).
 			ScrollTo(0, 0)
 	}
 
